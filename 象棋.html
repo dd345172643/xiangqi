@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>象棋</title>
+	<style>
+		*{margin:0; padding:0; }
+		#map{ width: 812.5px; height:828px; position: relative;}
+		img{width: 812.5px; height:828px;}
+		#map1{width:720px;height:800px;position: absolute; left:46px; top: 14px; overflow: hidden}
+		table{width:720px;height:800px;border-spacing:0;}
+		tr{height: :80px;}
+		td{width: 78px; height:78px; border:0; cursor: pointer; color:#fff;}
+		.chess1{ display:block; width:60px; height:60px; background: #d5af7e; color:#f00; font-size: 40px; text-align: center ; line-height: 60px; border-radius: 50%; margin-left: 10px;}
+		.chess2{ display:block; width:60px; height:60px; background: #d5af7e; color:#000; font-size: 40px; text-align: center ; line-height: 60px; border-radius: 50%; margin-left: 10px;}
+	</style>
+	<script src="create.js"></script>
+	<script>
+
+	onload = function(){
+		var oTab = document.getElementById('tab');
+		var oTds = oTab.getElementsByTagName('td');
+		for (var i = 0; i < 10; i++) {
+			var oTr = document.createElement('tr');
+			for (var j = 0; j < 9; j++) {
+				var oTd = document.createElement('td');
+				oTr.appendChild(oTd);
+
+			}
+			oTab.appendChild(oTr);
+		}
+		create(oTab,oTds);
+		var count = 0;
+		var turn = 0;
+		var pos = 0;
+		var end = 0;
+		var arr = [];
+		for (var i = 0; i < oTds.length; i++) {
+			oTds[i].index = i;
+			oTds[i].onclick = function (){
+				if(end==1) return;
+				var oSpan = this.getElementsByTagName('span')[0];
+				pos = this.index;
+				//选择要走的棋子
+				if(oSpan.innerHTML != '' && count%2==0){
+					if((turn%2==0&&getStyleAttr(oSpan, 'color')=='rgb(255, 0, 0)')||(turn%2==1&&getStyleAttr(oSpan, 'color')=='rgb(0, 0, 0)')){
+					count++;
+					arr.push({obj:oSpan,num:pos})
+					oSpan.style.border = '2px solid #000'
+					}else{
+						return;
+					}
+				}else if(count%2 != 0){//选择棋子移动的位置
+					var oSpan1 = oTds[pos].getElementsByTagName('span')[0];
+					var oSpan2 = oTds[arr[0].num].getElementsByTagName('span')[0];
+					//如果移动的位置上有和选择的棋子颜色一样的棋子 则默认为选择此棋子
+					if(getStyleAttr(oSpan1, 'color')==getStyleAttr(oSpan2, 'color')) {
+						oSpan2.style.border = '0';
+						arr.pop();
+						arr.push({obj:oSpan,num:pos})
+						oTds[arr[0].num].getElementsByTagName('span')[0].style.border = '2px solid #000'
+						return;
+					}
+					//两次选择位子一样 无变化
+					if(arr[0].num == pos) return;
+					//进入棋子类型判断函数move()
+					if(move(arr,pos,oTds)){
+						count++;
+						turn++;
+						oSpan2.style.border = '0';
+						//胜利判断
+						if(oSpan1.innerHTML=='帥'){
+							alert('黑方WIN');
+							end ++;
+						}else if(oSpan1.innerHTML=='将'){
+							alert('红方WIN');
+							end ++;
+						}
+						//清除被吃的子
+						oSpan.className = arr[0].obj.className;
+						oSpan.innerHTML = arr[0].obj.innerHTML;
+						arr[0].obj.className = '';
+						arr[0].obj.innerHTML = '';
+						arr.pop();
+						count=0;
+					}else{
+						return;
+					}
+				}else{
+					if(arr.length>0)arr.pop();
+				}
+			}
+		}
+	}
+	
+	// function secondLick(oSpan1,oTds,pos1,count){
+	// 		if(oSpan1.innerHTML != ''){
+	// 			var oSpanStyle1 = getStyleAttr(oSpan1, 'color');
+	// 			for (var j = 0; j < oTds.length; j++) {
+	// 				oTds[j].xxx = j;
+	// 				oTds[j].addEventListener('click',oclick2,false);
+	// 				function oclick2(oSpan1,oTds,pos1){
+	// 					var oSpan2 = this.getElementsByTagName('span')[0];
+	// 					var pos2 = this.xxx;
+	// 					if(oSpan2.innerHTML != ''){
+	// 						var oSpanStyle2 = getStyleAttr(oSpan2, 'color');
+	// 						if(oSpanStyle1==oSpanStyle2){
+	// 							oclick2(oSpan2,oTds,pos2);
+	// 						}else{
+	// 							oSpan2.className = oSpan1.className;
+	// 							oSpan2.innerHTML = oSpan1.innerHTML;
+	// 							oSpan1.className = '';
+	// 							oSpan1.innerHTML = '';
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 		return;
+	// 	}
+	</script>
+</head>
+<body>
+	<div id = 'map'>
+		<img src='images/map.jpg'/>
+		<div id = 'map1'>
+			<table id = 'tab'></table>
+		</div>
+	</div>
+</body>
+</html>
